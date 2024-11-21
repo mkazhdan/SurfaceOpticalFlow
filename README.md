@@ -9,7 +9,7 @@
 <A NAME="LINKS"><B>LINKS</B></A><br>
 <A href="https://www.cs.jhu.edu/~misha/MyPapers/SIG16.pdf">SIGGRAPH 2016 Paper</A><br>
 <A HREF="https://www.cs.jhu.edu/~misha/Code/SurfaceOpticalFlow/Version1.00/SurfaceOpticalFlow.x64.zip">Windows (x64) Executables</A><BR>
-<A href="https://www.cs.jhu.edu/~misha/Code/SurfaceOpticalFlow/Version1.00/SurfaceOpticalFlow.zip">Source Code</A><br>
+<A href="https://www.cs.jhu.edu/~misha/Code/SurfaceOpticalFlow/Version1.00/SurfaceOpticalFlow.zip">Source Code</A> <a href="https://github.com/mkazhdan/PoissonRecon">GitHub</a><br> 
 (Older Versions:
 <A href="https://www.cs.jhu.edu/~misha/Code/SurfaceOpticalFlow/Version1.00/">V1.00</A>)
 <br>
@@ -53,6 +53,10 @@ The default value for this parameter is 7.<br>
 <DT>[<b>--sSmooth</b> &#60;<i>smoothing weight</i>&#62;]
 <DD> This floating point value gives the smoothing weight for scalar fields at the coarsest resolution of the hierarchy.<br>
 The default value for this parameter is 0.003.<br>
+
+<DT>[<b>--vfMass</b> &#60;<i>smoothing weight</i>&#62;]
+<DD> This floating point value gives the mass weight for vector fields at the coarsest resolution of the hierarchy.<br>
+The default value for this parameter is 0.<br>
 
 <DT>[<b>--vfSmooth</b> &#60;<i>smoothing weight</i>&#62;]
 <DD> This floating point value gives the smoothing weight for vector fields at the coarsest resolution of the hierarchy.<br>
@@ -99,7 +103,7 @@ The default value for this parameter is 1.0.<br>
 </SUMMARY>
 <A HREF="https://www.cs.jhu.edu/~misha/Code/SurfaceOpticalFlow/Version1.10/">Version 1.10</A>:
 <OL>
-<LI> Added support for mass regularization.
+<LI> Added support for mass regularization via the <code>--vfMass</code> flag..
 </OL>
 
 </DETAILS>
