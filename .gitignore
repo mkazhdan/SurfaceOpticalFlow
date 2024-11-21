@@ -1,0 +1,10 @@
+.vs/
+*.zip
+*.tlog
+*.filters
+*.log
+*.obj
+*.pdb
+*.exe
+*/x64/
+*.user
