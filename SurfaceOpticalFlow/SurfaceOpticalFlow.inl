@@ -56,11 +56,7 @@ struct FlowData
 	void init( void );
 	Real getError( bool exponential , bool halfway ) const;
 	void setFittingSystem( const std::vector< Point< Real , Channels > > resampled[2] , Pointer( Real ) b , bool halfWay );
-#ifdef USE_MASS
 	void combineFitnessMassAndStiffness( Real massWeight , Real smoothWeight );
-#else // !USE_MASS
-	void combineFitnessAndStiffness( Real smoothWeight );
-#endif // USE_MASS
 	void smoothSignal( std::vector< Point< Real , Channels > > smoothed[2] , Real smoothWeight , bool verbose );
 
 	template< class V >
@@ -199,7 +195,6 @@ void FlowData< Real , BasisType , Channels >::init( void )
 	vfMass = mesh->template massMatrix< BasisType >( );
 	vfStiffness = mesh->template stiffnessMatrix< BasisType >( );
 
-#ifdef USE_MASS
 	{
 		if( vfStiffness.rows!=vfMass.rows ){ fprintf( stderr , "[ERROR] Rows don't match\n" ) ; exit(0); }
 
@@ -224,7 +219,6 @@ void FlowData< Real , BasisType , Channels >::init( void )
 		}
 		vfMass = _vfMass;
 	}
-#endif // USE_MASS
 
 	flowCoefficients.resize( mesh->template dimension< BasisType >() , (Real)0 );
 
@@ -248,13 +242,11 @@ void FlowData< Real , BasisType , Channels >::init( void )
 				vfStiffness[i][j] = vfStiffness[i][k];
 				vfStiffness[i][k] = temp;
 			}
-#ifdef USE_MASS
 			{
 				MatrixEntry< Real , int > temp = vfMass[i][j];
 				vfMass[i][j] = vfMass[i][k];
 				vfMass[i][k] = temp;
 			}
-#endif // USE_MASS
 			count++;
 		}
 		if     ( count==1 ) ;
@@ -266,14 +258,12 @@ void FlowData< Real , BasisType , Channels >::init( void )
 				vfStiffness[i][k] = vfStiffness[i][j];
 				vfStiffness[i][j] = MatrixEntry< Real , int >( Q[i][j].N , 0 );
 			}
-#ifdef USE_MASS
 			{
 				size_t k = vfMass.rowSizes[i];
 				vfMass.ResetRowSize( i , k+1 );
 				vfMass[i][k] = vfMass[i][j];
 				vfMass[i][j] = MatrixEntry< Real , int >( Q[i][j].N , 0 );
 			}
-#endif // USE_MASS
 		}
 		else fprintf( stderr , "[ERROR] FlowData::InitializeFittingSystem: %d > 1\n" , count ) , exit(0);
 	}
@@ -399,18 +389,10 @@ void FlowData< Real , BasisType , Channels >::setFittingSystem( const std::vecto
 	FreePointer( newTensors );
 }
 template< class Real , unsigned int BasisType , int Channels >
-#ifdef USE_MASS
 void FlowData< Real , BasisType , Channels >::combineFitnessMassAndStiffness( Real massWeight , Real smoothWeight )
-#else // !USE_MASS
-void FlowData< Real , BasisType , Channels >::combineFitnessAndStiffness( Real smoothWeight )
-#endif // USE_MASS
 {
 #pragma omp parallel for
-#ifdef USE_MASS
 	for( int i=0 ; i<vfStiffness.rows ; i++ ) for( int j=0 ; j<vfStiffness.rowSizes[i] ; j++ ) vfM[i][j].Value = vfStiffness[i][j].Value * smoothWeight + vfMass[i][j].Value * massWeight;
-#else // !USE_MASS
-	for( int i=0 ; i<vfStiffness.rows ; i++ ) for( int j=0 ; j<vfStiffness.rowSizes[i] ; j++ ) vfM[i][j].Value = vfStiffness[i][j].Value * smoothWeight;
-#endif // USE_MASS
 #pragma omp parallel for
 	for( int i=0 ; i<Q.rows ; i++ ) for( int j=0 ; j<Q.rowSizes[i] ; j++ ) vfM[i][j].Value += Q[i][j].Value;
 }

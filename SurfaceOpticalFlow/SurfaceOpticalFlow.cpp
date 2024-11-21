@@ -72,9 +72,7 @@ cmdLineParameter< int >
 
 cmdLineParameter< float >
 	ScalarSmoothWeight( "sSmooth" , 3e-3f ) ,
-#ifdef USE_MASS
 	VectorFieldMassWeight( "vfMass" , 0.f ) ,
-#endif // USE_MASS
 	VectorFieldSmoothWeight( "vfSmooth" , 1e6f ) ,
 	SubdivideEdgeLength( "eLength" , 0.008f ) ,
 	DoGWeight( "dogWeight" , 1.f ) ,
@@ -102,9 +100,7 @@ cmdLineReadable* params[] =
 	&Levels ,
 	&SubLevels ,
 	&ScalarSmoothWeight  ,
-#ifdef USE_MASS
 	&VectorFieldMassWeight ,
-#endif // USE_MASS
 	&VectorFieldSmoothWeight ,
 	&SmoothIters ,
 	&Verbose ,
@@ -134,9 +130,7 @@ void ShowUsage( const char* ex )
 	printf( "\t[--%s <input geometry>]\n" , BaseMesh.name );
 	printf( "\t[--%s <hierarchy levels>=%d]\n" , Levels.name , Levels.value );
 	printf( "\t[--%s <scalar smoothing weight>=%f]\n" , ScalarSmoothWeight.name , ScalarSmoothWeight.value );
-#ifdef USE_MASS
 	printf( "\t[--%s <vector field mass weight>=%f]\n" , VectorFieldMassWeight.name , VectorFieldMassWeight.value );
-#endif // USE_MASS
 	printf( "\t[--%s <vector field smoothing weight>=%f]\n" , VectorFieldSmoothWeight.name , VectorFieldSmoothWeight.value );
 	printf( "\t[--%s <number of key-frames to output>=%d]\n" , KeyFrames.name , KeyFrames.value );
 	printf( "\t[--%s <output headers>]\n" , Out.name );
@@ -209,9 +203,7 @@ CorrectionStats< Real > EstimateCorrectionFlow
 (
 	FlowData< Real , BasisType , Channels >& flowData ,
 	Real scalarSmoothWeight ,
-#ifdef USE_MASS
 	Real vectorMassWeight ,
-#endif // USE_MASS
 	Real vectorSmoothWeight
 )
 {
@@ -252,11 +244,7 @@ CorrectionStats< Real > EstimateCorrectionFlow
 		}
 
 		// Combine the fitting term with the smoothness term
-#ifdef USE_MASS
 		flowData.combineFitnessMassAndStiffness( vectorMassWeight , vectorSmoothWeight );
-#else // !USE_MASS
-		flowData.combineFitnessAndStiffness( vectorSmoothWeight );
-#endif // USE_MASS
 
 		double setTime = t.elapsed();
 
@@ -573,29 +561,19 @@ int __Execute( void )
 	
 	{
 		Real scalarSmoothWeight = (Real)ScalarSmoothWeight.value;
-#ifdef USE_MASS
 		Real vectorFieldMassWeight = (Real)VectorFieldMassWeight.value;
-#endif // USE_MASS
 		Real vectorFieldSmoothWeight = (Real)VectorFieldSmoothWeight.value;
 		{
 			Timer t;
 			CorrectionStats< Real > stats;
 			// Iterate over the hierarchy levels (coarse-to-fine)
-#ifdef USE_MASS
 			for( int i=0 ; i<Levels.value ; i++ , scalarSmoothWeight *= WeightMultiplier.value , vectorFieldMassWeight *= WeightMultiplier.value , vectorFieldSmoothWeight *= WeightMultiplier.value )
-#else // !USE_MASS
-			for( int i=0 ; i<Levels.value ; i++ , scalarSmoothWeight *= WeightMultiplier.value , vectorFieldSmoothWeight *= WeightMultiplier.value )
-#endif // USE_MASS
 			{
 				Timer t;
 				// Perform the correction(s) within the level
 				{
 					CorrectionStats< Real > _stats;
-#ifdef USE_MASS
 					for( int j=0 ; j<SubLevels.value ; j++ ) _stats = EstimateCorrectionFlow< BasisType , SearchDim , Real ,  Channels >( flowData , scalarSmoothWeight , vectorFieldMassWeight , vectorFieldSmoothWeight );
-#else // !USE_MASS
-					for( int j=0 ; j<SubLevels.value ; j++ ) _stats = EstimateCorrectionFlow< BasisType , SearchDim , Real ,  Channels >( flowData , scalarSmoothWeight , vectorFieldSmoothWeight );
-#endif // USE_MASS
 					if( i==0 ) stats = _stats;
 					else stats.endError[0] = _stats.endError[0] , stats.endError[1] = _stats.endError[1] , stats.mass = _stats.mass , stats.stiffness = _stats.stiffness;
 				}

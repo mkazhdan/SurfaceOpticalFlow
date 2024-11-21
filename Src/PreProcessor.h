@@ -30,7 +30,6 @@ DAMAGE.
 #define PRE_PROCESSOR_INCLUDED
 
 #define NEW_CODE		// General changes
-#define USE_MASS		// Supports mass regularization
 
 /////////////////////////////////////////////////////////////////////
 // Uncomment the next line if your EIGEN installation supports MKL //
